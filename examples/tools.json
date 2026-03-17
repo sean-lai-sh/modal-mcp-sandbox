@@ -1,0 +1,19 @@
+{
+  "tools": [
+    {
+      "name": "pwd",
+      "description": "Print current working directory",
+      "command": "pwd"
+    },
+    {
+      "name": "list_workspace",
+      "description": "List files in workspace root",
+      "command": "ls -la /workspace"
+    },
+    {
+      "name": "grep_todo",
+      "description": "Search for TODO markers under workspace",
+      "command_template": "rg -n 'TODO' {path}"
+    }
+  ]
+}
