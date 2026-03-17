@@ -43,11 +43,18 @@ Provide a VM-like agent runtime over Modal primitives: persistent workspace file
 
 ## MCP Tool Runtime Model
 - Tool source:
-  - Tool definitions live in the workspace volume (for example `/workspace/.agent/tools.json`).
+  - MCP server definitions live in the workspace volume (`/workspace/.agent/mcp_definitions.json`).
 - Load model:
-  - MCP server loads definitions at startup (and can reload on session restart).
+  - Control plane syncs tool metadata from each MCP definition URL (`GET /tools`) into `/workspace/.agent/mcp_cli/registry.json`.
 - Invocation path:
-  - Agent -> MCP tool call -> tool definition resolution -> `sandbox.exec` command execution -> response.
+  - Agent -> MCP gateway tool call -> mcp2cli-backed execution in sandbox -> response.
+
+## Skill Exposure
+- Base skill:
+  - A vendored, pinned MCP2CLI base skill snapshot is bundled in the SDK.
+- Workspace skill:
+  - Control plane generates `/workspace/.agent/skills/mcp_cli_gateway.SKILL.md`.
+  - The skill is intentionally compact and instructs agents to use runtime MCP-CLI discovery to avoid prompt context bloat.
 
 ## Tradeoffs and Risks
 - Why no end-user CLI:

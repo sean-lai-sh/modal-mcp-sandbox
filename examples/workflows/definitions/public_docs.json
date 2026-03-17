@@ -1,0 +1,8 @@
+{
+  "id": "public_docs",
+  "url": "https://example.com/sse",
+  "auth": {
+    "type": "none"
+  },
+  "description": "No-auth MCP example"
+}

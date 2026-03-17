@@ -1,0 +1,11 @@
+{
+  "id": "private_data",
+  "url": "https://private.example.com/sse",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "env_var": "PRIVATE_DATA_API_KEY",
+    "value": "sk-mvp-fallback"
+  },
+  "description": "API-key MCP example with env-first and literal fallback"
+}

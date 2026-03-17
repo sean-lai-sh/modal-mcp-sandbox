@@ -90,3 +90,63 @@ class StopResult:
             stopped=bool(payload.get("stopped", False)),
             reason=payload.get("reason"),
         )
+
+
+@dataclass
+class McpDefinitionRecord:
+    id: str
+    url: str
+    auth: dict[str, Any]
+    description: str = ""
+    metadata: dict[str, Any] | None = None
+
+    @classmethod
+    def from_dict(cls, payload: dict[str, Any]) -> "McpDefinitionRecord":
+        return cls(
+            id=str(payload.get("id", "")),
+            url=str(payload.get("url", "")),
+            auth=dict(payload.get("auth", {})) if isinstance(payload.get("auth"), dict) else {},
+            description=str(payload.get("description", "")),
+            metadata=dict(payload.get("metadata")) if isinstance(payload.get("metadata"), dict) else None,
+        )
+
+
+@dataclass
+class McpSyncResult:
+    workspace_id: str
+    session_id: str
+    registry_path: str
+    servers: int
+    tools: int
+    errors: list[dict[str, Any]]
+    skill_path: str
+
+    @classmethod
+    def from_dict(cls, payload: dict[str, Any]) -> "McpSyncResult":
+        errors = payload.get("errors", [])
+        return cls(
+            workspace_id=str(payload.get("workspace_id", "")),
+            session_id=str(payload.get("session_id", "")),
+            registry_path=str(payload.get("registry_path", "")),
+            servers=int(payload.get("servers", 0)),
+            tools=int(payload.get("tools", 0)),
+            errors=errors if isinstance(errors, list) else [],
+            skill_path=str(payload.get("skill_path", "")),
+        )
+
+
+@dataclass
+class WorkspaceSkill:
+    workspace_id: str
+    session_id: str
+    path: str
+    text: str
+
+    @classmethod
+    def from_dict(cls, payload: dict[str, Any]) -> "WorkspaceSkill":
+        return cls(
+            workspace_id=str(payload.get("workspace_id", "")),
+            session_id=str(payload.get("session_id", "")),
+            path=str(payload.get("path", "")),
+            text=str(payload.get("text", "")),
+        )

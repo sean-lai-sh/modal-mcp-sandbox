@@ -14,6 +14,8 @@ Most agent workflows want something that feels like bare-metal: a stable filesys
 - Execute tools through MCP, which runs commands via `sandbox.exec`.
 - Persist workspace files in a named Modal Volume.
 - Resume with an optional `session_id` when the sandbox is still alive, or recreate from the same volume when it is not.
+- Register non-standard MCP definitions and sync their tools into a workspace MCP-CLI registry.
+- Generate a compact workspace skill to expose MCP-CLI usage without context bloat.
 
 ## Core Concepts
 - Control plane app vs runtime sandbox:
@@ -52,6 +54,60 @@ result = client.invoke_tool(
 )
 print(endpoint.url)
 print(result.stdout)
+```
+
+### MCP Definition Workflow Example
+```python
+from modal_vm_sdk import ModalVMClient
+
+client = ModalVMClient(app_name="modal-vm-primitive")
+session = client.ensure_session(
+    workspace_id="demo-workspace",
+    secret_names=["my-private-mcp-secret"],  # optional
+)
+
+client.register_mcp_definition(
+    workspace_id="demo-workspace",
+    session_id=session.session_id,
+    definition={
+        "id": "public_docs",
+        "url": "https://example.com/sse",
+        "auth": {"type": "none"},
+    },
+)
+
+client.register_mcp_definition(
+    workspace_id="demo-workspace",
+    session_id=session.session_id,
+    definition={
+        "id": "private_data",
+        "url": "https://private.example.com/sse",
+        "auth": {
+            "type": "api_key",
+            "header": "Authorization",
+            "env_var": "PRIVATE_DATA_API_KEY",  # preferred
+            # "value": "sk-live-...",           # fallback for MVP
+        },
+    },
+)
+
+sync = client.sync_mcp_tools("demo-workspace", session_id=session.session_id)
+print(sync.registry_path, sync.tools)
+
+skill_text = client.base_mcp_skill()
+workspace_skill = client.workspace_mcp_skill(
+    "demo-workspace",
+    session_id=session.session_id,
+).text
+
+result = client.run_mcp_tool(
+    workspace_id="demo-workspace",
+    session_id=session.session_id,
+    server_id="public_docs",
+    tool_name="search_docs",
+    args={"query": "sandbox volume behavior"},
+)
+print(result.exit_code, result.stdout)
 ```
 
 ## MVP Constraints

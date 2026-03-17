@@ -2,10 +2,13 @@
 
 from .client import ModalVMClient
 from .models import (
+    McpDefinitionRecord,
     McpEndpoint,
+    McpSyncResult,
     SessionInfo,
     StopResult,
     ToolInvocationResult,
+    WorkspaceSkill,
 )
 
 __all__ = [
@@ -14,4 +17,7 @@ __all__ = [
     "ToolInvocationResult",
     "McpEndpoint",
     "StopResult",
+    "McpDefinitionRecord",
+    "McpSyncResult",
+    "WorkspaceSkill",
 ]
