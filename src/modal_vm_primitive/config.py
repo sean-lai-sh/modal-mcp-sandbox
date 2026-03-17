@@ -14,6 +14,21 @@ TOOLING_MOUNT_PATH = os.environ.get("MODAL_VM_TOOLING_MOUNT", "/tooling")
 TOOL_MANIFEST_PATH = os.environ.get(
     "MODAL_VM_TOOL_MANIFEST", "/workspace/.agent/tools.json"
 )
+MCP_DEFINITIONS_PATH = os.environ.get(
+    "MODAL_VM_MCP_DEFINITIONS", "/workspace/.agent/mcp_definitions.json"
+)
+MCP_REGISTRY_PATH = os.environ.get(
+    "MODAL_VM_MCP_REGISTRY", "/workspace/.agent/mcp_cli/registry.json"
+)
+MCP_SKILL_PATH = os.environ.get(
+    "MODAL_VM_MCP_SKILL_PATH", "/workspace/.agent/skills/mcp_cli_gateway.SKILL.md"
+)
+MCP_CLI_DIR = os.environ.get("MODAL_VM_MCP_CLI_DIR", "/workspace/.agent/mcp_cli")
+MCP2CLI_SPEC = os.environ.get(
+    "MODAL_VM_MCP2CLI_SPEC",
+    "git+https://github.com/knowsuchagency/mcp2cli.git",
+)
+MCP2CLI_BIN = os.environ.get("MODAL_VM_MCP2CLI_BIN", "/tmp/modal-vm-bin/mcp2cli")
 MCP_PORT = int(os.environ.get("MODAL_VM_MCP_PORT", "8080"))
 MCP_LOG_PATH = os.environ.get("MODAL_VM_MCP_LOG", "/tmp/modal-vm-mcp.log")
 

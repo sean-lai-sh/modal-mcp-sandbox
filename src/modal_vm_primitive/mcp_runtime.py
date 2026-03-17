@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import shlex
+from typing import Optional
 
 from .config import MCP_LOG_PATH, MCP_PORT, TOOL_MANIFEST_PATH
 from .sandbox_manager import exec_in_sandbox, get_tunnel_url
@@ -152,7 +153,7 @@ def start_mcp_server(sandbox) -> None:
     exec_in_sandbox(sandbox=sandbox, command=cmd)
 
 
-def ensure_mcp_url(sandbox) -> str | None:
+def ensure_mcp_url(sandbox) -> Optional[str]:
     url = get_tunnel_url(sandbox, port=MCP_PORT)
     if url:
         return url

@@ -7,7 +7,7 @@ import shlex
 import time
 import uuid
 from collections.abc import Mapping
-from typing import Any
+from typing import Any, Optional
 
 import modal
 
@@ -126,8 +126,9 @@ def create_session_record(
     workspace_id: str,
     sandbox_id: str,
     volume_name: str,
-    mcp_url: str | None,
+    mcp_url: Optional[str],
     resumed: bool,
+    secret_names: Optional[list[str]] = None,
 ) -> dict[str, Any]:
     return {
         "workspace_id": workspace_id,
@@ -139,6 +140,7 @@ def create_session_record(
         "status": "active",
         "resumed": resumed,
         "tool_manifest_path": TOOL_MANIFEST_PATH,
+        "secret_names": sorted(set(secret_names or [])),
     }
 
 
@@ -148,20 +150,39 @@ def create_sandbox(
     workspace_volume: modal.Volume,
     tooling_volume: modal.Volume,
     idle_timeout_seconds: int,
+    secret_names: Optional[list[str]] = None,
 ) -> modal.Sandbox:
-    return modal.Sandbox.create(
-        "bash",
-        "-lc",
-        "sleep infinity",
-        app=app,
-        image=image,
-        timeout=idle_timeout_seconds,
-        volumes={
+    kwargs: dict[str, Any] = {
+        "app": app,
+        "image": image,
+        "timeout": idle_timeout_seconds,
+        "volumes": {
             WORKSPACE_MOUNT_PATH: workspace_volume,
             TOOLING_MOUNT_PATH: tooling_volume,
         },
-        encrypted_ports=[MCP_PORT],
-    )
+        "encrypted_ports": [MCP_PORT],
+    }
+    if secret_names:
+        kwargs["secrets"] = [modal.Secret.from_name(name) for name in sorted(set(secret_names))]
+
+    try:
+        return modal.Sandbox.create(
+            "bash",
+            "-lc",
+            "sleep infinity",
+            **kwargs,
+        )
+    except TypeError as exc:
+        # Older Modal clients may not support sandbox secrets argument.
+        if "secrets" not in str(exc):
+            raise
+        kwargs.pop("secrets", None)
+        return modal.Sandbox.create(
+            "bash",
+            "-lc",
+            "sleep infinity",
+            **kwargs,
+        )
 
 
 def sandbox_from_id(sandbox_id: str) -> modal.Sandbox:
@@ -188,7 +209,7 @@ def terminate_sandbox(sandbox: modal.Sandbox) -> None:
         terminate_fn()
 
 
-def get_tunnel_url(sandbox: modal.Sandbox, port: int = MCP_PORT) -> str | None:
+def get_tunnel_url(sandbox: modal.Sandbox, port: int = MCP_PORT) -> Optional[str]:
     tunnels_attr = getattr(sandbox, "tunnels", None)
     tunnels: Any = None
 
